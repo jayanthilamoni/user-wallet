@@ -9,16 +9,60 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public Long uid;
+    private Long uid;
 
     @NonNull
     @Column(name = "user_name")
-    public String userName;
+    private String userName;
 
     @NonNull
-    public String password;
+    private String password;
 
     @OneToOne
     @JoinColumn(name = "wallet_id")
-    public Wallet wallet;
+    private Wallet wallet;
+
+    public User(Long uid, @NonNull String userName, @NonNull String password, Wallet wallet) {
+        this.uid = uid;
+        this.userName = userName;
+        this.password = password;
+        this.wallet = wallet;
+    }
+
+    public User() {
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
+
+    @NonNull
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(@NonNull String userName) {
+        this.userName = userName;
+    }
+
+    @NonNull
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(@NonNull String password) {
+        this.password = password;
+    }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
 }

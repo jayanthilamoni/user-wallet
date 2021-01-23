@@ -12,21 +12,82 @@ public class Wallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public Long id;
+    private Long id;
 
     @NonNull
-    public BigDecimal balance;
+    private BigDecimal balance;
 
     @Column(name = "creation_date")
-    public Date createdDate;
+    private Date createdDate;
 
     @Column(name="last_modified")
     @Temporal(TemporalType.TIMESTAMP)
-    public Date lastModified;
+    private Date lastModified;
 
     @OneToOne(mappedBy = "wallet")
-    public User user;
+    private User user;
 
     @OneToMany
-    public List<Transaction> transactions;
+    private List<Transaction> transactions;
+
+    public Wallet(Long id, @NonNull BigDecimal balance, Date createdDate, Date lastModified, User user, List<Transaction> transactions) {
+        this.id = id;
+        this.balance = balance;
+        this.createdDate = createdDate;
+        this.lastModified = lastModified;
+        this.user = user;
+        this.transactions = transactions;
+    }
+
+    public Wallet() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @NonNull
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(@NonNull BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
 }

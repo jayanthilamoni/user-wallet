@@ -9,11 +9,44 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public Long id;
+    private Long id;
 
     @Column(name = "transaction_type")
-    public TransactionType transactionType;
+    private TransactionType transactionType;
 
     @ManyToOne(targetEntity = Wallet.class)
-    public Wallet wallet;
+    private Wallet wallet;
+
+    public Transaction(Long id, TransactionType transactionType, Wallet wallet) {
+        this.id = id;
+        this.transactionType = transactionType;
+        this.wallet = wallet;
+    }
+
+    public Transaction() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(TransactionType transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
 }
