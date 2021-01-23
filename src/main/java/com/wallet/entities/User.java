@@ -22,11 +22,9 @@ public class User {
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;
 
-    public User(Long uid, @NonNull String userName, @NonNull String password, Wallet wallet) {
-        this.uid = uid;
+    public User(@NonNull String userName, @NonNull String password) {
         this.userName = userName;
         this.password = password;
-        this.wallet = wallet;
     }
 
     public User() {
