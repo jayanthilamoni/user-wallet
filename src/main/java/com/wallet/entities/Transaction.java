@@ -13,4 +13,7 @@ public class Transaction {
 
     @Column(name = "transaction_type")
     public TransactionType transactionType;
+
+    @ManyToOne(targetEntity = Wallet.class)
+    public Wallet wallet;
 }

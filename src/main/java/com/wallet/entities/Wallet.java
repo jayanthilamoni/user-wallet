@@ -17,14 +17,16 @@ public class Wallet {
     @NonNull
     public BigDecimal balance;
 
-    @Column(name = "creation-date")
+    @Column(name = "creation_date")
     public Date createdDate;
 
-    @Column(name="last-modified")
+    @Column(name="last_modified")
     @Temporal(TemporalType.TIMESTAMP)
     public Date lastModified;
 
+    @OneToOne(mappedBy = "wallet")
+    public User user;
+
     @OneToMany
-    @JoinColumn(name = "transaction_id")
     public List<Transaction> transactions;
 }
