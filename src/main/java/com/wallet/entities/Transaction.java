@@ -1,5 +1,6 @@
 package com.wallet.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wallet.enums.TransactionType;
 
 import javax.persistence.*;
@@ -14,7 +15,8 @@ public class Transaction {
     @Column(name = "transaction_type")
     private TransactionType transactionType;
 
-    @ManyToOne(targetEntity = Wallet.class)
+    @ManyToOne(targetEntity = Wallet.class,fetch = FetchType.LAZY)
+    @JsonIgnore
     private Wallet wallet;
 
     public Transaction(Long id, TransactionType transactionType, Wallet wallet) {

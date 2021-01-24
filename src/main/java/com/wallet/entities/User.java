@@ -18,7 +18,7 @@ public class User {
     @NonNull
     private String password;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;
 
