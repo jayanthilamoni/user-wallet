@@ -1,19 +1,9 @@
 package com.wallet.forms;
 
 public class TransactionForm {
-    private String fromUser;
-
     private String toUser;
 
     private String amount;
-
-    public String getFromUser() {
-        return fromUser;
-    }
-
-    public void setFromUser(String fromUser) {
-        this.fromUser = fromUser;
-    }
 
     public String getToUser() {
         return toUser;

@@ -4,10 +4,7 @@ import com.wallet.entities.Transaction;
 import com.wallet.entities.User;
 import com.wallet.entities.Wallet;
 import com.wallet.enums.TransactionStatus;
-import com.wallet.exceptions.AnonymousUserException;
-import com.wallet.exceptions.InsufficientBalanceException;
-import com.wallet.exceptions.NoTransactionWithIdException;
-import com.wallet.exceptions.UserNotFoundException;
+import com.wallet.exceptions.*;
 import com.wallet.forms.TransactionForm;
 import com.wallet.forms.WalletForm;
 import com.wallet.services.UserService;
@@ -47,11 +44,23 @@ public class WalletController {
     }
 
     @PostMapping("/transfer-money")
-    public Transaction transferAmount(@RequestBody TransactionForm transactionForm) throws UserNotFoundException, InsufficientBalanceException {
-        User fromUser = userService.findUserByUserName(transactionForm.getFromUser());
+    public Transaction transferAmount(@RequestBody TransactionForm transactionForm) throws UserNotFoundException, InsufficientBalanceException, AnonymousUserException, SenderSameAsCurrentUserException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
+        User fromUser = null;
+        if(principal instanceof org.springframework.security.core.userdetails.User) {
+            org.springframework.security.core.userdetails.User principalUser = (org.springframework.security.core.userdetails.User) principal;
+            fromUser = userService.findUserByUserName(principalUser.getUsername());
+        }
+        if(fromUser==null){
+            throw new AnonymousUserException();
+        }
         User toUser = userService.findUserByUserName(transactionForm.getToUser());
-        if(fromUser==null || toUser==null){
+        if(toUser==null){
             throw new UserNotFoundException();
+        }
+        if(fromUser.getUid().equals(toUser.getUid())){
+            throw new SenderSameAsCurrentUserException();
         }
         BigDecimal amount = new BigDecimal(transactionForm.getAmount());
         return walletService.transferMoney(amount,fromUser,toUser);
