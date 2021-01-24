@@ -1,13 +1,15 @@
 package com.wallet.services;
 
+import com.wallet.entities.Charge;
 import com.wallet.entities.Transaction;
 import com.wallet.entities.User;
 import com.wallet.entities.Wallet;
+import com.wallet.enums.ChargeType;
 import com.wallet.enums.TransactionStatus;
 import com.wallet.enums.TransactionType;
 import com.wallet.exceptions.InsufficientBalanceException;
 import com.wallet.exceptions.NoTransactionWithIdException;
-import com.wallet.exceptions.UserNotFoundException;
+import com.wallet.repositories.ChargeRepository;
 import com.wallet.repositories.TransactionRepository;
 import com.wallet.repositories.UserRepository;
 import com.wallet.repositories.WalletRepository;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -25,14 +28,17 @@ public class WalletService {
 
     private final UserRepository userRepository;
 
-    public WalletService(WalletRepository repository, TransactionRepository transactionRepository, UserRepository userRepository) {
+    private final ChargeRepository chargeRepository;
+
+    public WalletService(WalletRepository repository, TransactionRepository transactionRepository, UserRepository userRepository, ChargeRepository chargeRepository) {
         this.repository = repository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
+        this.chargeRepository = chargeRepository;
     }
 
-    public Wallet saveWallet(Wallet wallet){
-        return repository.save(wallet);
+    public void saveWallet(Wallet wallet){
+        repository.save(wallet);
     }
 
     public Wallet addMoney(BigDecimal amount, User user){
@@ -64,8 +70,12 @@ public class WalletService {
         }
         Wallet fromUserWallet = fromUser.getWallet();
         Wallet toUserWallet = toUser.getWallet();
-        fromUserWallet.setBalance(fromUserWallet.getBalance().subtract(amount));
-        toUserWallet.setBalance(toUserWallet.getBalance().add(amount));
+        fromUserWallet.setBalance(fromUserWallet.getBalance().
+                subtract(amount.add(calculateCharges(amount,ChargeType.CHARGE,TransactionType.DEBIT))
+                                .add(calculateCharges(amount,ChargeType.COMMISSION,TransactionType.DEBIT))));
+        toUserWallet.setBalance(toUserWallet.getBalance().
+                add(amount.subtract(calculateCharges(amount,ChargeType.CHARGE,TransactionType.CREDIT))
+                            .subtract(calculateCharges(amount,ChargeType.COMMISSION,TransactionType.CREDIT))));
         repository.save(fromUserWallet);
         repository.save(toUserWallet);
         creditTransaction.setTransactionStatus(TransactionStatus.SUCCESS);
@@ -89,6 +99,7 @@ public class WalletService {
         return transactionRepository.getTransactionById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Transaction reverseTransaction(String transactionId) throws NoTransactionWithIdException, InsufficientBalanceException {
         Long id = Long.valueOf(transactionId);
         Transaction transaction = transactionRepository.getTransactionById(id);
@@ -104,5 +115,10 @@ public class WalletService {
 
     public List<Transaction> getAllTransactionOfUser(User user){
         return transactionRepository.getAllByFromUser(user);
+    }
+
+    public BigDecimal calculateCharges(BigDecimal amount,ChargeType chargeType, TransactionType transactionType){
+        Charge charge = chargeRepository.getChargeByChargeTypeAndTransactionType(chargeType,transactionType);
+        return amount.multiply(charge.getChargePercentage()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN);
     }
 }
