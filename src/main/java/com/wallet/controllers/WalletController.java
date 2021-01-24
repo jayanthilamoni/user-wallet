@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/wallet")
@@ -63,5 +64,17 @@ public class WalletController {
     @DeleteMapping("/reverse-transaction/{id}")
     public Transaction reverseTransaction(@PathVariable String id) throws InsufficientBalanceException, NoTransactionWithIdException {
         return walletService.reverseTransaction(id);
+    }
+
+    @GetMapping("/all-transactions")
+    public List<Transaction> getAllTransactions() throws AnonymousUserException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
+        if(principal instanceof org.springframework.security.core.userdetails.User) {
+            org.springframework.security.core.userdetails.User principalUser = (org.springframework.security.core.userdetails.User) principal;
+            User user = userService.findUserByUserName(principalUser.getUsername());
+            return walletService.getAllTransactionOfUser(user);
+        }
+        throw new AnonymousUserException();
     }
 }

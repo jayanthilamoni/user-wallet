@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class WalletService {
@@ -99,5 +100,9 @@ public class WalletService {
         Transaction creditReversal = getTransaction(fromUser,toUser,transaction.getAmount(),TransactionType.DEBIT);
         Transaction debitReversal = getTransaction(toUser,fromUser,transaction.getAmount(),TransactionType.CREDIT);
         return transferMoney(transaction.getAmount(),toUser,fromUser,creditReversal,debitReversal);
+    }
+
+    public List<Transaction> getAllTransactionOfUser(User user){
+        return transactionRepository.getAllByFromUser(user);
     }
 }
