@@ -3,8 +3,10 @@ package com.wallet.controllers;
 import com.wallet.entities.Transaction;
 import com.wallet.entities.User;
 import com.wallet.entities.Wallet;
+import com.wallet.enums.TransactionStatus;
 import com.wallet.exceptions.AnonymousUserException;
 import com.wallet.exceptions.InsufficientBalanceException;
+import com.wallet.exceptions.NoTransactionWithIdException;
 import com.wallet.exceptions.UserNotFoundException;
 import com.wallet.forms.TransactionForm;
 import com.wallet.forms.WalletForm;
@@ -12,10 +14,7 @@ import com.wallet.services.UserService;
 import com.wallet.services.WalletService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -54,5 +53,15 @@ public class WalletController {
         }
         BigDecimal amount = new BigDecimal(transactionForm.getAmount());
         return walletService.transferMoney(amount,fromUser,toUser);
+    }
+
+    @GetMapping("/transaction-status/{id}")
+    public TransactionStatus getTransactionStatus(@PathVariable String id){
+        return walletService.getTransactionStatus(id).getTransactionStatus();
+    }
+
+    @DeleteMapping("/reverse-transaction/{id}")
+    public Transaction reverseTransaction(@PathVariable String id) throws InsufficientBalanceException, NoTransactionWithIdException {
+        return walletService.reverseTransaction(id);
     }
 }

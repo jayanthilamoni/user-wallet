@@ -1,6 +1,7 @@
 package com.wallet.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wallet.enums.TransactionStatus;
 import com.wallet.enums.TransactionType;
 
 import javax.persistence.*;
@@ -25,6 +26,9 @@ public class Transaction {
     private String toUser;
 
     private BigDecimal amount;
+
+    @Column(name = "status")
+    private TransactionStatus transactionStatus;
 
     public Transaction(Long id, TransactionType transactionType) {
         this.id = id;
@@ -72,5 +76,13 @@ public class Transaction {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public TransactionStatus getTransactionStatus() {
+        return transactionStatus;
+    }
+
+    public void setTransactionStatus(TransactionStatus transactionStatus) {
+        this.transactionStatus = transactionStatus;
     }
 }
