@@ -3,6 +3,7 @@ package com.wallet.entities;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class User {
@@ -21,6 +22,9 @@ public class User {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;
+
+    @OneToMany(mappedBy = "fromUser")
+    private List<Transaction> transactions;
 
     public User(@NonNull String userName, @NonNull String password) {
         this.userName = userName;
@@ -62,5 +66,13 @@ public class User {
 
     public void setWallet(Wallet wallet) {
         this.wallet = wallet;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 }

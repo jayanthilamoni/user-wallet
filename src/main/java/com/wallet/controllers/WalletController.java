@@ -1,8 +1,12 @@
 package com.wallet.controllers;
 
+import com.wallet.entities.Transaction;
 import com.wallet.entities.User;
 import com.wallet.entities.Wallet;
 import com.wallet.exceptions.AnonymousUserException;
+import com.wallet.exceptions.InsufficientBalanceException;
+import com.wallet.exceptions.UserNotFoundException;
+import com.wallet.forms.TransactionForm;
 import com.wallet.forms.WalletForm;
 import com.wallet.services.UserService;
 import com.wallet.services.WalletService;
@@ -39,5 +43,16 @@ public class WalletController {
             return walletService.addMoney(addValue,user);
         }
         throw new AnonymousUserException();
+    }
+
+    @PostMapping("/transfer-money")
+    public Transaction transferAmount(@RequestBody TransactionForm transactionForm) throws UserNotFoundException, InsufficientBalanceException {
+        User fromUser = userService.findUserByUserName(transactionForm.getFromUser());
+        User toUser = userService.findUserByUserName(transactionForm.getToUser());
+        if(fromUser==null || toUser==null){
+            throw new UserNotFoundException();
+        }
+        BigDecimal amount = new BigDecimal(transactionForm.getAmount());
+        return walletService.transferMoney(amount,fromUser,toUser);
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wallet.enums.TransactionType;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 public class Transaction {
@@ -15,14 +16,19 @@ public class Transaction {
     @Column(name = "transaction_type")
     private TransactionType transactionType;
 
-    @ManyToOne(targetEntity = Wallet.class,fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "from_user")
     @JsonIgnore
-    private Wallet wallet;
+    private User fromUser;
 
-    public Transaction(Long id, TransactionType transactionType, Wallet wallet) {
+    @Column(name = "to_user_id")
+    private String toUser;
+
+    private BigDecimal amount;
+
+    public Transaction(Long id, TransactionType transactionType) {
         this.id = id;
         this.transactionType = transactionType;
-        this.wallet = wallet;
     }
 
     public Transaction() {
@@ -44,11 +50,27 @@ public class Transaction {
         this.transactionType = transactionType;
     }
 
-    public Wallet getWallet() {
-        return wallet;
+    public User getFromUser() {
+        return fromUser;
     }
 
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
+    public void setFromUser(User fromUser) {
+        this.fromUser = fromUser;
+    }
+
+    public String getToUser() {
+        return toUser;
+    }
+
+    public void setToUser(String toUser) {
+        this.toUser = toUser;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 }

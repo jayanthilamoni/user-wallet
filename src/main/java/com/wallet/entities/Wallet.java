@@ -1,7 +1,9 @@
 package com.wallet.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -20,10 +22,13 @@ public class Wallet {
     private BigDecimal balance;
 
     @Column(name = "creation_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
     private Date createdDate;
 
     @Column(name="last_modified")
     @Temporal(TemporalType.TIMESTAMP)
+    @UpdateTimestamp
     private Date lastModified;
 
     @OneToOne(mappedBy = "wallet",fetch = FetchType.LAZY)
@@ -33,15 +38,6 @@ public class Wallet {
     @OneToMany(fetch = FetchType.LAZY)
     private List<Transaction> transactions;
 
-    @PrePersist
-    public void addTimeStamp(){
-        createdDate = new Date();
-    }
-
-    @PreUpdate
-    public void updateTimeStamp(){
-        lastModified = new Date();
-    }
 
     public Wallet(Long id, @NonNull BigDecimal balance, Date createdDate, Date lastModified, User user, List<Transaction> transactions) {
         this.id = id;
