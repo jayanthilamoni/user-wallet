@@ -12,6 +12,7 @@ import com.wallet.forms.TransactionForm;
 import com.wallet.forms.WalletForm;
 import com.wallet.services.UserService;
 import com.wallet.services.WalletService;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -74,6 +75,18 @@ public class WalletController {
             org.springframework.security.core.userdetails.User principalUser = (org.springframework.security.core.userdetails.User) principal;
             User user = userService.findUserByUserName(principalUser.getUsername());
             return walletService.getAllTransactionOfUser(user);
+        }
+        throw new AnonymousUserException();
+    }
+
+    @GetMapping("/show-balance")
+    public BigDecimal getWallet() throws AnonymousUserException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
+        if(principal instanceof org.springframework.security.core.userdetails.User) {
+            org.springframework.security.core.userdetails.User principalUser = (org.springframework.security.core.userdetails.User) principal;
+            User user = userService.findUserByUserName(principalUser.getUsername());
+            return user.getWallet().getBalance();
         }
         throw new AnonymousUserException();
     }

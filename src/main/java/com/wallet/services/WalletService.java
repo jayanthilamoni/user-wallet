@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class WalletService {
@@ -70,14 +71,16 @@ public class WalletService {
         }
         Wallet fromUserWallet = fromUser.getWallet();
         Wallet toUserWallet = toUser.getWallet();
-        fromUserWallet.setBalance(fromUserWallet.getBalance().
-                subtract(amount.add(calculateCharges(amount,ChargeType.CHARGE,TransactionType.DEBIT))
-                                .add(calculateCharges(amount,ChargeType.COMMISSION,TransactionType.DEBIT))));
-        toUserWallet.setBalance(toUserWallet.getBalance().
-                add(amount.subtract(calculateCharges(amount,ChargeType.CHARGE,TransactionType.CREDIT))
-                            .subtract(calculateCharges(amount,ChargeType.COMMISSION,TransactionType.CREDIT))));
+        BigDecimal amountToDebit = amount.add(calculateCharges(amount,ChargeType.CHARGE,TransactionType.DEBIT))
+                .add(calculateCharges(amount,ChargeType.COMMISSION,TransactionType.DEBIT));
+        BigDecimal amountToCredit = amount.subtract(calculateCharges(amount,ChargeType.CHARGE,TransactionType.CREDIT))
+                .subtract(calculateCharges(amount,ChargeType.COMMISSION,TransactionType.CREDIT));
+        fromUserWallet.setBalance(fromUserWallet.getBalance().subtract(amountToDebit));
+        toUserWallet.setBalance(toUserWallet.getBalance().add(amountToCredit));
         repository.save(fromUserWallet);
         repository.save(toUserWallet);
+        creditTransaction.setAmount(amountToDebit);
+        debitTransaction.setAmount(amountToCredit);
         creditTransaction.setTransactionStatus(TransactionStatus.SUCCESS);
         debitTransaction.setTransactionStatus(TransactionStatus.SUCCESS);
         transactionRepository.save(creditTransaction);
@@ -121,4 +124,5 @@ public class WalletService {
         Charge charge = chargeRepository.getChargeByChargeTypeAndTransactionType(chargeType,transactionType);
         return amount.multiply(charge.getChargePercentage()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN);
     }
+
 }
